@@ -1,9 +1,7 @@
 //! The Output pane (the `modes` experiment): what Hex does to every
 //! dictation before it pastes it, and what some apps use instead, read from
-//! `dictation_processing`. The pane only shows the steps; the person's agent
-//! changes them through `hex settings`, so the pane leads with Edit with
-//! agent, which copies a prompt saying where the steps live and what each
-//! can be.
+//! `dictation_processing`. Modes opens the existing native editor; Edit with
+//! agent copies a prompt for changes through `hex settings`.
 
 use rune::{El, TextEdit, Tx, col, el, row, text};
 use rune_kit::{Button, ButtonVariant, TextInput};
@@ -16,7 +14,7 @@ use super::icons::MIC;
 use super::lists::{Tone, tone_tag};
 use super::modes::{application_icon, monogram};
 use super::spark::{Spark, spark};
-use super::{ShortcutTarget, Ui};
+use super::{Pane, ShortcutTarget, Ui};
 use crate::app_settings::DictationMode;
 use crate::desktop::i18n::{tr, tr_fill};
 use crate::dictation::text_replacements::ReplacementSet;
@@ -211,8 +209,7 @@ pub(super) fn pane(ui: &Ui, p: Paint, reduced: bool) -> El {
     super::scroll_body(p.k, "output-scroll", content)
 }
 
-/// The pane's one action: the agent writes the steps, so this card is how
-/// to change them.
+/// The native Modes editor, settings file, and optional agent editing.
 fn agent_card(ui: &Ui, p: Paint, reduced: bool) -> El {
     let mark = spark(&ui.output.spark, p, "spark", SPARK, reduced);
     let copy = if ui.output.prompt_copied {
@@ -220,6 +217,16 @@ fn agent_card(ui: &Ui, p: Paint, reduced: bool) -> El {
     } else {
         examples::copy(p, ui.output.examples, &ui.output.order, reduced)
     };
+    let configure = button(
+        p,
+        "edit-output",
+        tr("Modes"),
+        ButtonKind::Secondary,
+        |ui: &mut Ui, tx: &mut Tx| {
+            ui.select_pane(Pane::Modes, tx);
+            super::modes::select_mode(ui, super::modes::Selection::Default);
+        },
+    );
     let open = Button::new(tr("Open file"))
         .variant(ButtonVariant::Ghost)
         .on_press(open_settings_file)
@@ -263,6 +270,7 @@ fn agent_card(ui: &Ui, p: Paint, reduced: bool) -> El {
                     .key("actions")
                     .gap(4.0)
                     .center_y()
+                    .child(configure)
                     .child(open)
                     .child(edit),
             ),

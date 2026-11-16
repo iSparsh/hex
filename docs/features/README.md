@@ -1318,8 +1318,10 @@ Gaps: the bar and touch are not verified on a real Windows PC or touchscreen.
 ## Process Text With Modes
 
 ```ts
-Output (main sidebar, replaces the Modes editor) // rune_ui/output.rs; scenes output*
+Output (main sidebar; Modes opens the existing editor) // rune_ui/output.rs; scenes output*
 ├── Trust prompt -> Allow a config that uses fetch or programs (only when one asks)
+├── Modes -> Existing Global/per-app editor: AI rewrite toggle, model and prompt,
+│   corrections, transformations, app-specific rules; changes use existing persistence
 ├── Edit with agent -> Copy a prompt naming the steps' keys (the AI rewrite too), `hex settings`,
 │   `hex vocabulary` for names, and the transforms docs
 ├── Open file -> settings.json in the default editor
@@ -1333,7 +1335,7 @@ Output (main sidebar, replaces the Modes editor) // rune_ui/output.rs; scenes ou
 │   unbound by default: copies the focused field, runs its Output steps, re-checks the
 │   selection, and replaces it (labs.md, dictation.md)
 └── In some apps -> Each mode's apps and its steps (Only: …), opens to list them
-    // the old Modes editor stays in the code for its scenes, unreachable
+    // the native Modes editor is reachable from Output even with no steps
     // Its drafts and delete confirmation follow the unique saved mode name
     // across reloads; removing, renaming or duplicating it drops the draft.
     // A dirty field stays; untouched fields adopt the new values individually.
@@ -1356,6 +1358,21 @@ Selected mode                            // replaces Global's rewrite and transf
 
 Stage fails -> Preserve its input        // failed chain discards partial results
 ```
+
+The Output summary does not invent example steps for an empty configuration.
+Its Modes action opens the already implemented editor even when nothing is
+configured. AI cleanup still requires an available OpenCode service/model;
+the existing editor explains an unavailable service. The README screenshot
+is the populated `output` fixture, not the default settings.
+
+Checks: `output_opens_the_existing_editor_without_configured_steps` navigates
+from empty/populated Output, enables the existing rewrite controls with a
+fixture model catalog, adds an app mode and returns to the updated summary.
+`output_editor_renders_existing_controls` captures the existing model/prompt
+controls in both appearances. Headless CLI scene rendering was exercised
+with the debug binary (`hex app -- --snap <path> --scene modes-global`);
+normal release builds omit Rune's tooling feature. The live local Output
+window was checked for the Modes action; no live AI request was made.
 
 With Labs › Switch model with app on, each mode also carries a speech model
 and language (`speech`) and the frontmost app's mode switches the

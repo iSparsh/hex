@@ -432,7 +432,7 @@ impl ModesPane {
 // ---------------------------------------------------------------------------
 // Edits
 
-fn select_mode(ui: &mut Ui, selection: Selection) {
+pub(super) fn select_mode(ui: &mut Ui, selection: Selection) {
     if ui.modes.selected == selection {
         return;
     }

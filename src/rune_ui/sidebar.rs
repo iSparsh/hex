@@ -60,7 +60,7 @@ pub(super) enum Pane {
     /// What Hex does to every dictation and in some apps, read-only: the
     /// person's agent edits it.
     Output,
-    /// The old per-app editor, kept for its scenes until it is removed.
+    /// The native per-app editor, opened by Output’s Modes action.
     Modes,
     /// Recorded calls and their settings, or the opt-in (macOS beta).
     Meetings,

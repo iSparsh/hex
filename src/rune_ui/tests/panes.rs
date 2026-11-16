@@ -3459,3 +3459,57 @@ fn correction_learning_card_is_explicitly_opt_in() {
         assert!(toggles.state.settings.labs.correction_learning);
     }
 }
+
+#[test]
+fn output_opens_the_existing_editor_without_configured_steps() {
+    for scene in ["output-empty", "output"] {
+        let mut rt = runtime(scene, true, PANE_SIZE);
+        tap(&mut rt, "edit-output");
+        assert_eq!(rt.state.pane, Pane::Modes);
+        assert!(
+            rt.find("processing-toggle").is_some(),
+            "AI rewrite controls are reachable"
+        );
+        assert!(
+            rt.find("add-mode").is_some(),
+            "app-specific rules can be added"
+        );
+        rt.update(|ui, _| ui.models = models::Models::fixture());
+        settle(&mut rt);
+        tap(&mut rt, "processing-toggle");
+        assert!(
+            rt.state
+                .settings
+                .dictation_processing
+                .default_mode
+                .post_processing
+                .enabled
+        );
+        assert!(
+            rt.find("prompt").is_some(),
+            "the existing instructions editor is visible"
+        );
+        let before = rt.state.settings.dictation_processing.modes.len();
+        tap(&mut rt, "add-mode");
+        assert_eq!(
+            rt.state.settings.dictation_processing.modes.len(),
+            before + 1
+        );
+        tap(&mut rt, "nav-output");
+        assert_eq!(rt.state.pane, Pane::Output);
+        assert!(texts(&rt).contains(&"Rewrite with OpenCode".to_string()));
+    }
+}
+
+#[test]
+fn output_editor_renders_existing_controls() {
+    let _goldens = Goldens::collect();
+    for dark in [true, false] {
+        let mut rt = runtime("output-empty", dark, PANE_SIZE);
+        tap(&mut rt, "edit-output");
+        rt.update(|ui, _| ui.models = models::Models::fixture());
+        settle(&mut rt);
+        tap(&mut rt, "processing-toggle");
+        check_render("output-native-editor", dark, render_runtime(rt, PANE_SIZE));
+    }
+}
