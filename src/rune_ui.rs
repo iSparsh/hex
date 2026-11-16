@@ -1152,6 +1152,17 @@ impl Ui {
         changed
     }
 
+    /// Reconciles a live host snapshot, including panes disabled externally.
+    fn adopt_host_settings(&mut self, settings: AppSettings) -> bool {
+        let mut changed = self.adopt(settings);
+        if !self.pane.available(self) {
+            self.pane = Pane::General;
+            self.open = None;
+            changed = true;
+        }
+        changed
+    }
+
     /// Saves pending edits, then lets the host finish its work and exit.
     fn quit(&mut self) {
         self.flush_drafts();
@@ -1428,14 +1439,7 @@ fn poll(ui: &mut Ui, clock: f64, tx: &mut Tx) -> bool {
             changed = true;
         }
         if let Some(settings) = settings {
-            changed |= ui.adopt(settings);
-            // A pane the adopted settings hide (the Hex Microphone turned
-            // off from `hex settings`) leaves for General.
-            if !ui.pane.shown(ui) {
-                ui.pane = Pane::General;
-                ui.open = None;
-                changed = true;
-            }
+            changed |= ui.adopt_host_settings(settings);
         }
     }
     let preparing = ui

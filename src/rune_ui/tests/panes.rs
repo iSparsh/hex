@@ -3502,6 +3502,23 @@ fn output_opens_the_existing_editor_without_configured_steps() {
 }
 
 #[test]
+fn output_editor_survives_live_host_refreshes() {
+    let mut rt = runtime("output-empty", true, PANE_SIZE);
+    tap(&mut rt, "edit-output");
+    let mut snapshot = rt.state.settings.clone();
+    // Live hosts repeatedly supply even an unchanged settings snapshot.
+    rt.update(|ui, _| {
+        ui.adopt_host_settings(snapshot.clone());
+    });
+    assert_eq!(rt.state.pane, Pane::Modes);
+    snapshot.enable_on_launch = !snapshot.enable_on_launch;
+    rt.update(|ui, _| {
+        ui.adopt_host_settings(snapshot);
+    });
+    assert_eq!(rt.state.pane, Pane::Modes);
+}
+
+#[test]
 fn output_editor_renders_existing_controls() {
     let _goldens = Goldens::collect();
     for dark in [true, false] {

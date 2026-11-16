@@ -1335,7 +1335,8 @@ Output (main sidebar; Modes opens the existing editor) // rune_ui/output.rs; sce
 │   unbound by default: copies the focused field, runs its Output steps, re-checks the
 │   selection, and replaces it (labs.md, dictation.md)
 └── In some apps -> Each mode's apps and its steps (Only: …), opens to list them
-    // the native Modes editor is reachable from Output even with no steps
+    // the native Modes editor is reachable from Output even with no steps;
+    // live host refreshes keep it open despite its hidden sidebar entry
     // Its drafts and delete confirmation follow the unique saved mode name
     // across reloads; removing, renaming or duplicating it drops the draft.
     // A dirty field stays; untouched fields adopt the new values individually.

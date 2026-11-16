@@ -102,9 +102,14 @@ impl Pane {
     ];
 
     pub(super) fn shown(self, ui: &Ui) -> bool {
+        self != Pane::Modes && self.available(ui)
+    }
+
+    /// Modes opens from Output without a sidebar entry of its own.
+    pub(super) fn available(self, ui: &Ui) -> bool {
         let caps = ui.platform.caps;
         match self {
-            Pane::Modes | Pane::HudLab | Pane::Activity => false,
+            Pane::HudLab | Pane::Activity => false,
             Pane::Meetings => caps.meetings && meetings::available(ui),
             // On from Labs (dev builds), or while its driver is installed.
             Pane::VoiceFilter => caps.fun && fun::running(ui),
