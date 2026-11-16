@@ -139,6 +139,12 @@ impl Feature {
             Self::GnomeClipboardRestore => {
                 "Put the previous clipboard back after a paste on GNOME Wayland, through the XWayland clipboard while XWayland is running"
             }
+            Self::CorrectionNotices => {
+                "Show a desktop notification with Undo when a correction is learned; off keeps correction learning silent"
+            }
+            Self::CorrectionLearning => {
+                "Learn small corrections to the final dictation in accessible Linux text fields; keep them as contextual AI hints, never automatic replacements"
+            }
             Self::TypedText => {
                 "Run the focused app's Output steps on the text already typed in the focused field and replace it (typed_text_hotkey)"
             }

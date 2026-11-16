@@ -1235,11 +1235,12 @@ fn prompt(
 ) -> String {
     let application = context.application.as_deref().unwrap_or("unknown");
     let host = context.browser_host().unwrap_or("none");
+    let learned = crate::dictation::correction_learning::hints(application, transcript);
     let caret = crate::dictation::caret_prompt::for_source(context, source)
         .map(crate::dictation::caret_prompt::section)
         .unwrap_or_default();
     format!(
-        "{PROTOCOL_PROMPT}\n\nProfile instructions:\n{}\n\n{}Foreground application: {application}\nBrowser host: {host}\n\n{caret}Raw transcript:\n<transcript>\n{transcript}\n</transcript>",
+        "{PROTOCOL_PROMPT}\n\nProfile instructions:\n{}\n\n{}Foreground application: {application}\nBrowser host: {host}\n\n{learned}{caret}Raw transcript:\n<transcript>\n{transcript}\n</transcript>",
         profile.prompt,
         vocabulary_lines(vocabulary)
     )

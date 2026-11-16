@@ -90,6 +90,8 @@ impl Feature {
             | Self::CopyOnly
             | Self::ReturnToApp
             | Self::GnomeClipboardRestore
+            | Self::CorrectionNotices
+            | Self::CorrectionLearning
             | Self::TypedText
             | Self::TerminalPaste
             | Self::OutputFixes

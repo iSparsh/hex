@@ -3427,3 +3427,35 @@ fn a_finger_pans_the_transcript_and_taps_the_sidebar() {
     settle(&mut rt);
     assert!(rt.find("lede").is_some(), "the tap opened Labs");
 }
+
+#[test]
+fn correction_learning_card_is_explicitly_opt_in() {
+    let _goldens = Goldens::collect();
+    check_golden("linux-labs", false, PANE_SIZE);
+    for dark in [true, false] {
+        let mut rt = runtime("linux-labs", dark, PANE_SIZE);
+        rt.update(|ui, _| ui.lab_store.search = rune::TextEdit::new("correction"));
+        settle(&mut rt);
+        assert!(rt.find("lab-correction-learning").is_some());
+        assert!(!rt.state.settings.labs.correction_learning);
+        assert!(!rt.state.settings.labs.correction_notices);
+        assert!(rt.find("lab-correction-notices").is_some());
+        assert!(rt.state.settings.labs.correction_learning_apps.is_empty());
+        check_render(
+            "linux-correction-learning",
+            dark,
+            render_runtime(rt, PANE_SIZE),
+        );
+        let mut toggles = runtime("linux-labs", dark, (980.0, 4000.0));
+        toggles.update(|ui, _| ui.lab_store.search = rune::TextEdit::new("correction"));
+        settle(&mut toggles);
+        tap(&mut toggles, "lab-correction-notices");
+        assert!(toggles.state.settings.labs.correction_notices);
+        assert!(!toggles.state.settings.labs.correction_learning);
+        tap(&mut toggles, "lab-correction-learning");
+        assert!(toggles.state.settings.labs.correction_learning);
+        tap(&mut toggles, "lab-correction-notices");
+        assert!(!toggles.state.settings.labs.correction_notices);
+        assert!(toggles.state.settings.labs.correction_learning);
+    }
+}

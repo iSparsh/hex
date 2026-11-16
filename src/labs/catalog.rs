@@ -63,6 +63,8 @@ impl Feature {
             | Self::ReleaseNotesLink
             | Self::HideMenuBarIcon
             | Self::GnomeClipboardRestore
+            | Self::CorrectionNotices
+            | Self::CorrectionLearning
             | Self::TypedText
             | Self::GnomeMeetingCapsules
             | Self::Screenshots
@@ -93,6 +95,7 @@ impl Feature {
     /// The day it joined Labs, as `yyyymmdd`. Labs marks the newest as New.
     pub const fn added(self) -> u32 {
         match self {
+            Self::CorrectionLearning | Self::CorrectionNotices => 20261116,
             Self::Meetings
             | Self::VoiceFilter
             | Self::Playground
@@ -179,6 +182,9 @@ impl Feature {
     /// The feature `hex settings` key `key` switches (its toggle, or
     /// Unload when idle's minutes).
     pub fn for_settings_key(key: &str) -> Option<Self> {
+        if key == "labs.correction_learning_apps" {
+            return Some(Self::CorrectionLearning);
+        }
         if key == "labs.unload_idle_minutes" {
             return Some(Self::UnloadIdle);
         }
@@ -244,6 +250,8 @@ impl Feature {
             Self::SectionKeyAlone => MACOS_LINUX,
             Self::MicrophoneKeyAlone => MACOS,
             Self::GnomeClipboardRestore
+            | Self::CorrectionNotices
+            | Self::CorrectionLearning
             | Self::TypedText
             | Self::GnomeMeetingCapsules
             | Self::GnomeAnnotate
@@ -367,6 +375,8 @@ impl Feature {
             Self::HideMenuBarIcon => "hide-menu-bar-icon",
             Self::GnomeClipboardRestore => "gnome-clipboard-restore",
             Self::TypedText => "typed-text",
+            Self::CorrectionLearning => "correction-learning",
+            Self::CorrectionNotices => "correction-notices",
             Self::NotchIndicator => "notch-indicator",
             Self::GnomeMeetingCapsules => "gnome-meeting-capsules",
             Self::GnomeAnnotate => "gnome-annotate",
@@ -448,6 +458,8 @@ impl Feature {
             Self::HideMenuBarIcon => "labs.hide_menu_bar_icon",
             Self::GnomeClipboardRestore => "labs.gnome_clipboard_restore",
             Self::TypedText => "labs.typed_text",
+            Self::CorrectionLearning => "labs.correction_learning",
+            Self::CorrectionNotices => "labs.correction_notices",
             Self::NotchIndicator => "labs.notch_indicator",
             Self::GnomeMeetingCapsules => "labs.gnome_meeting_capsules",
             Self::GnomeAnnotate => "labs.gnome_annotate",

@@ -61,6 +61,7 @@ impl DictationOutput {
         started: Instant,
         recording: Option<crate::history::Recording>,
         typing: Option<crate::linux::live_typing::Session>,
+        learning: Option<crate::linux::atspi::corrections::Session>,
         context: crate::dictation::context::ContextSnapshot,
         held_ms: Option<u64>,
     ) -> Result<String> {
@@ -125,6 +126,16 @@ impl DictationOutput {
             paste(&processed.text, flavour.terminal_paste(), send)
                 .inspect_err(|_| *last_dictation = Some(processed.text.clone()))?;
             sent = send;
+        }
+        if !printed
+            && !sent
+            && !flavour.raw()
+            && !crate::labs::copy_only()
+            && !flavour.terminal_paste()
+            && let Some(learning) = learning
+            && let Some(application) = application.as_deref()
+        {
+            learning.inserted(&processed.text, application);
         }
         if !printed {
             *last_dictation = Some(processed.text.clone());

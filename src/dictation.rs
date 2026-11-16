@@ -10,6 +10,7 @@ pub(crate) mod caret_text;
 pub(crate) mod config;
 #[cfg_attr(any(target_os = "linux", target_os = "windows"), allow(dead_code))]
 pub(crate) mod context;
+pub(crate) mod correction_learning;
 #[cfg(target_os = "macos")]
 pub(crate) mod diagnostics;
 pub(crate) mod filler_words;

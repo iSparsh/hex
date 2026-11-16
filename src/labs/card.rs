@@ -60,6 +60,8 @@ impl Feature {
             Self::HideMenuBarIcon => "Hide menu bar icon",
             Self::GnomeClipboardRestore => "Restore clipboard on GNOME",
             Self::TypedText => "Transform typed text",
+            Self::CorrectionLearning => "Learn from corrections",
+            Self::CorrectionNotices => "Learned correction notices",
             Self::NotchIndicator => "Notch indicator",
             Self::GnomeMeetingCapsules => "Floating meeting capsules on GNOME",
             Self::GnomeAnnotate => "Annotate on GNOME",
@@ -222,6 +224,12 @@ impl Feature {
             }
             Self::GnomeClipboardRestore => {
                 "Put back what you copied before a dictation, through XWayland. Works only while XWayland is already running"
+            }
+            Self::CorrectionNotices => {
+                "Show a notification with Undo when a correction is learned. Off keeps learning silent."
+            }
+            Self::CorrectionLearning => {
+                "Learn small edits to your dictation for future AI cleanup. Review with hex corrections."
             }
             Self::TypedText => {
                 "Adds a shortcut that runs your Output steps on text you typed and replaces it."

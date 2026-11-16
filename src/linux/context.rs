@@ -285,6 +285,19 @@ fn process_name(pid: u32) -> Option<String> {
         .filter(|name| !name.is_empty())
 }
 
+/// The compositor/X11 identity, used to bind learning to the capture target.
+pub(crate) fn focused_hint() -> Option<WindowHint> {
+    let window = if crate::linux::session::LinuxSession::detect().is_wayland() {
+        wayland_focused_window()
+    } else {
+        x11_focused_window()
+    }?;
+    Some(WindowHint {
+        pid: window.pid,
+        title: window.title,
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

@@ -596,6 +596,8 @@ fn rows(ui: &Ui) -> Vec<Row> {
         rows.push(row(Feature::TapOrHold, Some(&KEYBOARD)));
         rows.push(row(Feature::GnomeClipboardRestore, None));
         rows.push(row(Feature::TypedText, Some(&KEYBOARD)));
+        rows.push(row(Feature::CorrectionLearning, Some(&KEYBOARD)));
+        rows.push(row(Feature::CorrectionNotices, Some(&KEYBOARD)));
         rows.push(row(Feature::GnomeMeetingCapsules, None));
         rows.push(row(Feature::GnomeAnnotate, None));
     }
@@ -826,6 +828,8 @@ fn row_key(lab: Lab) -> &'static str {
         Feature::CapsLockDictation => "lab-caps-lock-dictation",
         Feature::GnomeClipboardRestore => "lab-gnome-clipboard-restore",
         Feature::TypedText => "lab-typed-text",
+        Feature::CorrectionLearning => "lab-correction-learning",
+        Feature::CorrectionNotices => "lab-correction-notices",
         Feature::NotchIndicator => "lab-notch-indicator",
         Feature::GnomeMeetingCapsules => "lab-gnome-meeting-capsules",
         Feature::GnomeAnnotate => "lab-gnome-annotate",

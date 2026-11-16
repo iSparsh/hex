@@ -549,6 +549,21 @@ pub(super) const KEYS: &[Key] = &[
         "Labs: on Wayland desktops without data-control, such as GNOME, a paste restores the previous clipboard through XWayland while it is already running (Linux)",
     ),
     key(
+        "labs.correction_learning_apps",
+        Kind::Json,
+        "App names allowed to learn corrections; empty disables observation",
+    ),
+    key(
+        "labs.correction_notices",
+        Kind::Bool,
+        "Labs: optional learned-correction desktop notifications with Undo (Linux; off by default)",
+    ),
+    key(
+        "labs.correction_learning",
+        Kind::Bool,
+        "Labs: learn edits to inserted text as contextual AI hints (Linux, AT-SPI)",
+    ),
+    key(
         "labs.typed_text",
         Kind::Bool,
         "Labs: Output shows a Typed text section whose shortcut runs the focused app's Output steps on the text already typed in the focused field and replaces it (Linux)",

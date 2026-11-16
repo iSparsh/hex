@@ -43,6 +43,7 @@ use typing::CaptureTyping;
 
 struct Job {
     transcript: PendingTranscript,
+    learning: Option<crate::linux::atspi::corrections::Session>,
     context: crate::linux::context::PendingContext,
     audio_ms: u64,
     /// The language the model was asked for at submission.
@@ -308,6 +309,7 @@ pub(crate) fn run(
                         started,
                         job.recording.take(),
                         job.typing.take(),
+                        job.learning.take(),
                         job.context.finish(),
                         None,
                     );
@@ -331,6 +333,7 @@ pub(crate) fn run(
                     started,
                     job.recording.take(),
                     job.typing.take(),
+                    job.learning.take(),
                     job.context.finish(),
                     job.held_ms,
                 )
@@ -713,6 +716,7 @@ pub(crate) fn run(
             }
         }
         if service_ended && !service.is_active() {
+            crate::linux::atspi::corrections::cancel();
             capture.cancel();
             suppressor.restore();
             // A client's dictation ended here before too.
@@ -863,6 +867,7 @@ pub(crate) fn run(
                     }
                 }
                 HotkeyEvent::Cancel if capture.is_recording() => {
+                    crate::linux::atspi::corrections::cancel();
                     capture.cancel();
                     cancel_typing(&mut active_typing);
                     feedback::retract_start();
@@ -986,10 +991,12 @@ pub(crate) fn run(
                         finish.release.stop_waiting();
                     }
                     if service.is_active() {
+                        crate::linux::atspi::corrections::cancel();
                         capture.cancel();
                         suppressor.restore();
                         service.lost(MICROPHONE_LOST);
                     } else if capture.is_recording() && finishing.is_none() {
+                        crate::linux::atspi::corrections::cancel();
                         capture.cancel();
                         cancel_typing(&mut active_typing);
                         feedback::retract_start();
@@ -1102,10 +1109,12 @@ pub(crate) fn run(
                 }
                 audio_ready = false;
                 if service.is_active() {
+                    crate::linux::atspi::corrections::cancel();
                     capture.cancel();
                     suppressor.restore();
                     service.lost(MICROPHONE_LOST);
                 } else if capture.is_recording() && finishing.is_none() {
+                    crate::linux::atspi::corrections::cancel();
                     capture.cancel();
                     cancel_typing(&mut active_typing);
                     feedback::retract_start();
@@ -1152,6 +1161,7 @@ pub(crate) fn run(
         }
     }
 
+    crate::linux::atspi::corrections::cancel();
     if capture.is_recording() {
         capture.cancel();
         events.dictation(DictationPhase::Cancelled, "")?;
@@ -1196,6 +1206,7 @@ fn start_capture(
     pre_roll: Duration,
     play: impl FnOnce(),
 ) {
+    crate::linux::atspi::corrections::arm();
     capture.start_at_press(pressed_at, pre_roll);
     play();
 }
@@ -1209,10 +1220,12 @@ fn start_service_capture(
     started_at: CaptureInstant,
     sample_rate: u32,
 ) {
+    crate::linux::atspi::corrections::arm();
     capture.start_programmatic_at(started_at);
     if service.started(sample_rate) {
         suppressor.suppress();
     } else {
+        crate::linux::atspi::corrections::cancel();
         capture.cancel();
     }
 }
@@ -1270,6 +1283,7 @@ fn submit_capture(
     // A discarded capture drops this guard without starting or ending a
     // session; a transcribed one moves it into the job.
     let typing = typing.take();
+    let learning = crate::linux::atspi::corrections::take();
     let no_speech = |print: Option<PrintReply>| {
         if let Some(print) = print {
             print.send(PrintedTranscript::NoSpeech);
@@ -1303,6 +1317,7 @@ fn submit_capture(
             let recording = crate::history::Recording::keep(&samples);
             let job = OutputJob::Dictation(Box::new(Job {
                 transcript: engine.finish(stream, samples)?,
+                learning,
                 context,
                 audio_ms,
                 language,
@@ -1907,6 +1922,7 @@ mod tests {
             2_000,
             0,
             Instant::now(),
+            None,
             None,
             None,
             Default::default(),

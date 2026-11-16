@@ -606,6 +606,28 @@
       "title": "Transform typed text"
     },
     {
+      "added": "2026-11-16",
+      "group": "output",
+      "groupTitle": "Output",
+      "id": "correction-learning",
+      "oses": [
+        "linux"
+      ],
+      "summary": "Learn small edits to your dictation for future AI cleanup. Review with hex corrections.",
+      "title": "Learn from corrections"
+    },
+    {
+      "added": "2026-11-16",
+      "group": "output",
+      "groupTitle": "Output",
+      "id": "correction-notices",
+      "oses": [
+        "linux"
+      ],
+      "summary": "Show a notification with Undo when a correction is learned. Off keeps learning silent.",
+      "title": "Learned correction notices"
+    },
+    {
       "added": "2026-11-03",
       "group": "dictation",
       "groupTitle": "Dictation",

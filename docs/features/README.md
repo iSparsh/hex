@@ -62,6 +62,10 @@ Traditional Chinese is drafted from the Simplified strings by a character and
 Taiwan-usage phrase converter (`desktop/i18n/traditional_chinese.rs`), not yet
 reviewed by a native speaker.
 The [vocabulary](vocabulary.md) biases transcription toward names you list.
+Labs › Learn from corrections (Linux, off by default) observes small edits to
+the final inserted dictation in explicitly allowed accessible apps. It stores
+app-scoped hints for existing AI cleanup, never unconditional aliases;
+`hex corrections list|forget` reviews or suppresses them.
 [Your own speech models](own-models.md) covers adding a GGUF file and using
 models another app already downloaded; its Labs › Smaller model files toggle
 (off by default, macOS) also accepts imports quantized to Q6_K, Q5_K, or Q4_K.

@@ -3433,3 +3433,19 @@ Checks: `labs_is_one_flat_list_of_toggles_off_by_default`,
 [control/settings.rs](../../src/control/settings.rs). Passed on Linux on
 2026-10-30; the macOS build was not checked, and the Windows build was
 type-checked only.
+
+### Learn from corrections (Linux)
+
+`correction-learning` / `labs.correction_learning` is off by default. An explicit
+`labs.correction_learning_apps` list enables observation in selected apps only.
+The observer follows edits to the final inserted dictation through AT-SPI and
+keeps small recognition corrections as contextual evidence for the existing
+OpenCode rewrite. It never creates unconditional replacements or vocabulary
+aliases. Review with `hex corrections list`; remove and suppress a pair with
+`hex corrections forget <id>`. See [Vocabulary](vocabulary.md#learn-from-corrections-linux-labs)
+for prerequisites, timing, scope, privacy, and limits.
+
+`correction-notices` / `labs.correction_notices` is a separate Linux lab, off
+by default. It shows a desktop notification with Undo when a correction is
+learned. Learning works silently with notices off; CLI review and forgetting
+remain available. Enabling notices alone does not enable learning.

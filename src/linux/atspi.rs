@@ -7,6 +7,8 @@
 //! running screen reader. Every call is bounded, so a hung application
 //! costs at most the deadline.
 
+pub(crate) mod corrections;
+
 use std::collections::HashMap;
 use std::time::Duration;
 

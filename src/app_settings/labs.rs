@@ -180,6 +180,12 @@ pub struct LabsSettings {
     /// A shortcut runs the focused app's Output steps on the text already
     /// typed there and replaces it (`typed_text_hotkey`, unbound by default).
     pub typed_text: bool,
+    /// Learn bounded corrections to inserted dictations through AT-SPI (Linux).
+    pub correction_learning: bool,
+    /// Show a desktop notice with Undo when a correction is learned (Linux).
+    pub correction_notices: bool,
+    /// App names allowed to learn; an empty list observes no applications.
+    pub correction_learning_apps: Vec<String>,
     /// At either visible indicator position, the HUD grows out of the notch on a screen with one (macOS).
     pub notch_indicator: bool,
     /// The meeting capsules float on a running XWayland on Wayland desktops without layer-shell, such as GNOME (Linux, issue 1274).
@@ -407,6 +413,9 @@ impl Default for LabsSettings {
             appearance_theme: AppearanceTheme::System,
             gnome_clipboard_restore: false,
             typed_text: false,
+            correction_learning: false,
+            correction_notices: false,
+            correction_learning_apps: Vec::new(),
             notch_indicator: false,
             annotate_replay: false,
             opencode_in_wsl: false,

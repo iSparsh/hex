@@ -471,3 +471,15 @@ pub fn microphone_linger() -> Option<std::time::Duration> {
         seconds => Some(std::time::Duration::from_secs(seconds)),
     }
 }
+
+/// Learn corrections to the final inserted text, never provisional words.
+pub fn correction_learning() -> bool {
+    let _ = state();
+    CORRECTION_LEARNING.load(Ordering::Acquire) && Feature::CorrectionLearning.on_this_os()
+}
+
+/// Optional learned-correction desktop notices; learning itself stays silent.
+pub fn correction_notices() -> bool {
+    let _ = state();
+    CORRECTION_NOTICES.load(Ordering::Acquire) && Feature::CorrectionNotices.on_this_os()
+}

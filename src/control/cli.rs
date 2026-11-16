@@ -160,6 +160,11 @@ pub enum ControlCli {
         #[command(flatten)]
         output: Output,
     },
+    /// Review or forget corrections learned from edits (local JSON ledger).
+    Corrections {
+        #[command(subcommand)]
+        command: crate::dictation::correction_learning::Command,
+    },
     /// List, add, and remove vocabulary terms.
     Vocabulary {
         #[command(subcommand)]
@@ -554,6 +559,7 @@ pub fn run(command: ControlCli, top_level: impl FnOnce() -> clap::Command) -> u8
             },
             output,
         ),
+        ControlCli::Corrections { command } => crate::dictation::correction_learning::run(command),
         ControlCli::Vocabulary { command } => match command {
             VocabularyCommand::List { output } => send(ControlCommand::VocabularyList, output),
             VocabularyCommand::Add {

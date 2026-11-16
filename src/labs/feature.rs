@@ -57,6 +57,8 @@ pub enum Feature {
     HideMenuBarIcon,
     GnomeClipboardRestore,
     TypedText,
+    CorrectionLearning,
+    CorrectionNotices,
     NotchIndicator,
     GnomeMeetingCapsules,
     GnomeAnnotate,
@@ -83,7 +85,7 @@ pub enum Feature {
 }
 
 impl Feature {
-    pub const ALL: [Self; 75] = [
+    pub const ALL: [Self; 77] = [
         Self::Meetings,
         Self::VoiceFilter,
         Self::Playground,
@@ -136,6 +138,8 @@ impl Feature {
         Self::HideMenuBarIcon,
         Self::GnomeClipboardRestore,
         Self::TypedText,
+        Self::CorrectionLearning,
+        Self::CorrectionNotices,
         Self::NotchIndicator,
         Self::GnomeMeetingCapsules,
         Self::GnomeAnnotate,

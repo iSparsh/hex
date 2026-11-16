@@ -168,6 +168,8 @@ impl Feature {
             Self::HideMenuBarIcon => settings.labs.hide_menu_bar_icon,
             Self::GnomeClipboardRestore => settings.labs.gnome_clipboard_restore,
             Self::TypedText => settings.labs.typed_text,
+            Self::CorrectionLearning => settings.labs.correction_learning,
+            Self::CorrectionNotices => settings.labs.correction_notices,
             Self::NotchIndicator => settings.labs.notch_indicator,
             Self::GnomeMeetingCapsules => settings.labs.gnome_meeting_capsules,
             Self::GnomeAnnotate => settings.labs.gnome_annotate,
@@ -250,6 +252,8 @@ impl Feature {
             &mut labs.hide_menu_bar_icon,
             &mut labs.gnome_clipboard_restore,
             &mut labs.typed_text,
+            &mut labs.correction_learning,
+            &mut labs.correction_notices,
             &mut labs.notch_indicator,
             &mut labs.gnome_meeting_capsules,
             &mut labs.gnome_annotate,
@@ -340,6 +344,8 @@ impl Feature {
             Self::HideMenuBarIcon => settings.labs.hide_menu_bar_icon = on,
             Self::GnomeClipboardRestore => settings.labs.gnome_clipboard_restore = on,
             Self::TypedText => settings.labs.typed_text = on,
+            Self::CorrectionLearning => settings.labs.correction_learning = on,
+            Self::CorrectionNotices => settings.labs.correction_notices = on,
             Self::NotchIndicator => settings.labs.notch_indicator = on,
             Self::GnomeMeetingCapsules => settings.labs.gnome_meeting_capsules = on,
             Self::GnomeAnnotate => settings.labs.gnome_annotate = on,
@@ -536,6 +542,10 @@ static CLEAN_UP: AtomicBool = AtomicBool::new(false);
 /// written by [`state`] and [`apply`].
 static MICROPHONE_KEY: AtomicBool = AtomicBool::new(false);
 
+/// Linux edit-learning gate; stored separately because the state word is full.
+static CORRECTION_LEARNING: AtomicBool = AtomicBool::new(false);
+static CORRECTION_NOTICES: AtomicBool = AtomicBool::new(false);
+
 /// The origins Labs › Browser access to the local API allows, set beside
 /// [`API_BROWSER_ACCESS`]: only normalized `scheme://host[:port]` origins,
 /// and empty while the lab is off.
@@ -573,6 +583,8 @@ fn state() -> u64 {
                 CALENDAR_MENU.store(calendar_menu_enabled(&saved), Ordering::Release);
                 store_yolo_mode(&saved);
                 CLEAN_UP.store(clean_up_enabled(&saved), Ordering::Release);
+                CORRECTION_LEARNING.store(correction_learning_enabled(&saved), Ordering::Release);
+                CORRECTION_NOTICES.store(correction_notices_enabled(&saved), Ordering::Release);
                 MICROPHONE_KEY.store(microphone_key_enabled(&saved), Ordering::Release);
                 store_api_browser_access(&saved);
                 store_voice_prompt_phrase(&saved.voice_prompt_phrase);
@@ -760,6 +772,8 @@ pub(crate) fn apply(settings: &LabsSettings) {
     CALENDAR_MENU.store(calendar_menu_enabled(settings), Ordering::Release);
     store_yolo_mode(settings);
     CLEAN_UP.store(clean_up_enabled(settings), Ordering::Release);
+    CORRECTION_LEARNING.store(correction_learning_enabled(settings), Ordering::Release);
+    CORRECTION_NOTICES.store(correction_notices_enabled(settings), Ordering::Release);
     MICROPHONE_KEY.store(microphone_key_enabled(settings), Ordering::Release);
     store_api_browser_access(settings);
     store_voice_prompt_phrase(&settings.voice_prompt_phrase);
@@ -961,6 +975,18 @@ pub fn log_launch() {
         copy_dictation_audio = copy_dictation_audio(),
         "labs"
     );
+}
+
+fn correction_learning_enabled(settings: &LabsSettings) -> bool {
+    settings.correction_learning
+        && Feature::CorrectionLearning.shipped()
+        && Feature::CorrectionLearning.managed().is_none()
+}
+
+fn correction_notices_enabled(settings: &LabsSettings) -> bool {
+    settings.correction_notices
+        && Feature::CorrectionNotices.shipped()
+        && Feature::CorrectionNotices.managed().is_none()
 }
 
 #[cfg(test)]

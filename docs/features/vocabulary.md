@@ -273,3 +273,67 @@ spelling replacement. Scenes:
 `vocabulary-unused` (Whisper, no golden). Passed on macOS on
 2026-10-23; the unused-model note's checks have not been observed running. Not yet observed: the sheet edited in a running Hex, a CLI edit
 against a running Hex, or a rewrite with a live provider.
+
+## Learn from corrections (Linux Labs)
+
+```ts
+Labs › Learn from corrections             // correction-learning; off by default
+├── `hex settings set labs.correction_learning_apps '["Helium", "T3 Code"]'`
+│   -> explicit app-name allowlist; empty observes nothing (names match Modes)
+├── Dictation starts -> background AT-SPI snapshot of the focused editable field
+│   ├── no accessible editor, secure/terminal field, oversized text, timeout,
+│   │   ambiguous target, or app not allowed -> no observation
+│   └── before provisional Live typing: field text + caret/selection in memory
+├── Output finishes (including AI cleanup) -> exact final text insertion receipt
+│   ├── failed, raw, printed, copy-only, terminal, discarded or auto-sent -> skip
+│   └── verify the field equals the old selection replaced by that final text
+├── Same field's text events -> wait 900 ms for edits to settle
+│   ├── focus loss (even if regained), new capture, missing field, lab off,
+│   │   app removed from allowlist, 120 s timeout -> stop
+│   ├── edits outside the inserted span, additions/deletions, numbers, calendar
+│   │   substitutions, case/punctuation/spacing alone or a broad rewrite -> skip
+│   └── one small lexical substitution (1–3 words, alphabetic, ≤64 bytes per
+│       side, ≥5 characters, edit distance ≤half the longer spelling)
+│       -> save app-scoped recognition evidence, then end this session
+├── `corrections.json` -> at most 500 short pairs with counts; owner-only,
+│   atomic write under a separate file lock; no surrounding document persisted
+├── Learning is silent by default
+├── Optional Labs › Learned correction notices (`correction-notices`)
+│   -> desktop notification with Undo; removes and suppresses that pair
+│   (CLI: `hex corrections forget <id>` works with notices off too)
+├── `hex corrections list` -> JSON; `forget <id>` removes and suppresses that pair
+└── Future OpenCode cleanup, only while the lab is on, in the same app and when
+    the transcript contains either spelling -> up to 12 contextual hints
+    ├── both spellings can be legitimate; leave uncertain cases unchanged
+    └── never modifies vocabulary, sounds-like aliases, replacements or models
+```
+
+Requires an app exposing editable text through AT-SPI. Chromium/Electron may
+need `--force-renderer-accessibility` and a full restart. App identity alone
+cannot disambiguate cloud/Claude; stored hints ask the existing rewrite to use
+sentence context. With rewriting off, evidence is collected but dictation is
+unchanged. No new network calls are introduced; when rewriting is enabled,
+relevant learned pairs join its prompt and reach the configured provider.
+
+Initial limits: only one lexical correction per dictation session; conservative
+alignment discards edits outside the inserted span. A pause during an unfinished
+edit can produce an imperfect hint; these are advisory evidence, not guaranteed
+recognition truth. No automatic alias promotion, acoustic adaptation, broad
+style learning, or Wayland surrounding-text observer is implemented.
+
+Checks: `dictation::correction_learning::tests`, `store::tests`, and the ignored
+`linux::atspi::corrections::tests::learns_a_real_field_edit_without_creating_an_alias`
+probe (a disposable GTK4 window, isolated `HEX_APPLICATION_SUPPORT_DIR`, no
+keyboard/clipboard/audio). Passing runs and native verification are recorded
+in the change's validation notes rather than implied by this list.
+
+Observed validation on Linux/niri: the standard binary test suite passed
+2,613 tests (22 explicitly ignored). The ignored GTK4 field probe passed
+separately using an isolated data directory: cloud → Claude produced a local
+hint and left settings/vocabulary unchanged. The observer uses one worker
+with a bounded pending capture; successive captures cancel old observation.
+The optimized local binary also loaded the existing Parakeet Unified English
+model on an NVIDIA RTX 4060 Laptop GPU through Vulkan, without downloading
+or relocating its model file. Chromium/Electron composer coverage after a
+renderer-accessibility restart and actual cloud-provider rewrite quality
+remain unverified.
