@@ -24,6 +24,7 @@ impl Feature {
             Self::PauseBrowser => "Also pause the browser",
             Self::ShareShortcut => "Share dictation shortcut with other apps",
             Self::UnloadIdle => "Free memory when idle",
+            Self::DelayLocalRewrite => "Local rewrite for longer dictations",
             Self::KeepMicrophoneOpen => "Keep mic open after dictating",
             Self::KeepOnClipboard => "Keep dictation on clipboard",
             Self::CopyOnly => "Copy dictation only",
@@ -123,6 +124,9 @@ impl Feature {
             }
             Self::ShareShortcut => {
                 "Other apps see your dictation key too, so it can also be push-to-talk in apps like Discord"
+            }
+            Self::DelayLocalRewrite => {
+                "Warm up the local OpenCode model while you speak and skip its rewrite on shorter dictations"
             }
             Self::UnloadIdle => {
                 "Frees the speech model's memory after a while unused; the next dictation reloads it"

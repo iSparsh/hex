@@ -28,6 +28,7 @@ impl Feature {
             | Self::PauseBrowser
             | Self::ShareShortcut
             | Self::UnloadIdle
+            | Self::DelayLocalRewrite
             | Self::KeepMicrophoneOpen
             | Self::KeepOnClipboard
             | Self::CopyOnly
@@ -95,6 +96,7 @@ impl Feature {
     /// The day it joined Labs, as `yyyymmdd`. Labs marks the newest as New.
     pub const fn added(self) -> u32 {
         match self {
+            Self::DelayLocalRewrite => 20261118,
             Self::Meetings
             | Self::VoiceFilter
             | Self::Playground
@@ -181,6 +183,9 @@ impl Feature {
     /// The feature `hex settings` key `key` switches (its toggle, or
     /// Unload when idle's minutes).
     pub fn for_settings_key(key: &str) -> Option<Self> {
+        if key == "labs.local_rewrite_seconds" {
+            return Some(Self::DelayLocalRewrite);
+        }
         if key == "labs.unload_idle_minutes" {
             return Some(Self::UnloadIdle);
         }
@@ -249,6 +254,7 @@ impl Feature {
             Self::SectionKeyAlone => MACOS_LINUX,
             Self::MicrophoneKeyAlone => MACOS,
             Self::GnomeClipboardRestore
+            | Self::DelayLocalRewrite
             | Self::TypedText
             | Self::GnomeMeetingCapsules
             | Self::GnomeAnnotate
@@ -338,6 +344,7 @@ impl Feature {
             Self::PauseBrowser => "pause-browser",
             Self::ShareShortcut => "share-shortcut",
             Self::UnloadIdle => "unload-idle",
+            Self::DelayLocalRewrite => "delay-local-rewrite",
             Self::KeepMicrophoneOpen => "keep-microphone-open",
             Self::KeepOnClipboard => "keep-on-clipboard",
             Self::CopyOnly => "copy-only",
@@ -421,6 +428,7 @@ impl Feature {
             Self::PauseBrowser => "pause_browser_media",
             Self::ShareShortcut => "share_dictation_shortcut",
             Self::UnloadIdle => "labs.unload_idle",
+            Self::DelayLocalRewrite => "labs.delay_local_rewrite",
             Self::KeepMicrophoneOpen => "labs.keep_microphone_open",
             Self::KeepOnClipboard => "labs.keep_on_clipboard",
             Self::CopyOnly => "labs.copy_only",

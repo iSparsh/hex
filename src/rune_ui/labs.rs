@@ -670,6 +670,7 @@ fn rows(ui: &Ui) -> Vec<Row> {
         rows.push(row(Feature::TapOrHold, Some(&KEYBOARD)));
         rows.push(row(Feature::GnomeClipboardRestore, None));
         rows.push(row(Feature::TypedText, Some(&KEYBOARD)));
+        rows.push(row(Feature::DelayLocalRewrite, Some(&TIMER)));
         rows.push(row(Feature::GnomeMeetingCapsules, None));
         rows.push(row(Feature::GnomeAnnotate, None));
     }
@@ -863,6 +864,7 @@ fn row_key(lab: Lab) -> &'static str {
         Feature::PauseBrowser => "lab-pause-browser",
         Feature::ShareShortcut => "lab-share-shortcut",
         Feature::UnloadIdle => "lab-unload-idle",
+        Feature::DelayLocalRewrite => "lab-delay-local-rewrite",
         Feature::KeepOnClipboard => "lab-keep-on-clipboard",
         Feature::CopyOnly => "lab-copy-only",
         Feature::ReturnToApp => "lab-return-to-app",
@@ -999,6 +1001,7 @@ fn extras(ui: &Ui, p: Paint, entry: &Row, layer: &mut Vec<El>) -> Option<El> {
         return None;
     }
     match entry.lab {
+        Lab::Feature(Feature::DelayLocalRewrite) => Some(local_rewrite_after(ui, p, layer)),
         Lab::Feature(Feature::UnloadIdle) => Some(
             row()
                 .key("unload-after")
@@ -1101,6 +1104,44 @@ fn appearance_theme(ui: &Ui, p: Paint) -> El {
         let theme = AppearanceTheme::ALL[index];
         ui.update(|settings| settings.labs.appearance_theme = theme);
     })
+}
+
+fn local_rewrite_after(ui: &Ui, p: Paint, layer: &mut Vec<El>) -> El {
+    use crate::app_settings::LOCAL_REWRITE_SECONDS;
+    let label = tr("Warm up after");
+    let selected = LOCAL_REWRITE_SECONDS
+        .iter()
+        .position(|seconds| *seconds == ui.settings.labs.local_rewrite_seconds)
+        .unwrap_or(1);
+    row()
+        .key("local-rewrite-after")
+        .gap(8.0)
+        .center_y()
+        .flex_wrap()
+        .child(
+            text(label)
+                .key("label")
+                .font(controls::DESCRIPTION)
+                .color(p.muted()),
+        )
+        .child(super::general::quiet_select(
+            ui,
+            p,
+            super::Menu::Pick("local-rewrite-seconds"),
+            "local-rewrite-seconds".to_owned(),
+            label,
+            LOCAL_REWRITE_SECONDS
+                .iter()
+                .map(|seconds| tr_fill("{} s", &seconds.to_string()))
+                .collect(),
+            selected,
+            |ui, index| {
+                ui.update(|settings| {
+                    settings.labs.local_rewrite_seconds = LOCAL_REWRITE_SECONDS[index]
+                });
+            },
+            layer,
+        ))
 }
 
 /// How long the model sits unused before it unloads.

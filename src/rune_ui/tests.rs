@@ -3714,8 +3714,12 @@ fn goldens() {
     check_golden("picker-found", false, PANE_SIZE);
     check_golden("vocabulary-budget", false, PANE_SIZE);
     check_golden("windows-labs", false, PANE_SIZE);
-    check_golden("linux-labs", false, PANE_SIZE);
     check_golden("history-menu", true, PANE_SIZE);
+}
+
+#[test]
+fn linux_labs_golden() {
+    check_golden("linux-labs", false, PANE_SIZE);
 }
 
 mod application_picker;

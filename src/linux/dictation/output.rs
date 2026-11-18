@@ -63,6 +63,7 @@ impl DictationOutput {
         typing: Option<crate::linux::live_typing::Session>,
         context: crate::dictation::context::ContextSnapshot,
         by_shortcut: bool,
+        short_local_dictation: bool,
     ) -> Result<String> {
         let application = context.application.clone();
         let modes = self
@@ -72,6 +73,18 @@ impl DictationOutput {
             .clone();
         let processed = if flavour.raw() {
             crate::dictation::processor::Processed::unchanged(raw_text.trim())
+        } else if let Some(processed) = short_local_dictation
+            .then(|| {
+                modes.process_short_local_dictation(
+                    &raw_text,
+                    language,
+                    &context,
+                    &self.transformations,
+                )
+            })
+            .flatten()
+        {
+            processed
         } else {
             modes.process(
                 &raw_text,

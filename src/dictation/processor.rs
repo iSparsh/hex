@@ -11,6 +11,8 @@ use crate::dictation::text_replacements::ReplacementSet;
 use crate::dictation::vocabulary::VocabularyEntry;
 
 mod generation;
+#[cfg(target_os = "linux")]
+mod local_rewrite;
 
 use self::generation::{
     Request, Response, generate_single_model, post_generation, remaining_generation_deadline,
@@ -2253,6 +2255,36 @@ mod tests {
         assert_eq!(processed.text, "Use OpenCode.");
         assert_eq!(processed.transformations, ["lowercase"]);
         assert!(processed.observation.is_none());
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn a_short_local_dictation_keeps_corrections_and_transformations() {
+        let local = Profile::new("local", "Rewrite freely.")
+            .ai_enabled(true)
+            .model("local", "qwen")
+            .transformations(vec!["lowercase".into()]);
+        let cloud = Profile::new("cloud", "Rewrite freely.")
+            .ai_enabled(true)
+            .model("openai", "example");
+        let profiles = Profiles::new(local).application("cloud-app", cloud);
+        assert!(profiles.has_local_rewrite());
+
+        let processed = profiles
+            .short_local_dictation(
+                "Please keep all these words.",
+                "en",
+                &context("editor", None),
+            )
+            .expect("the local rewrite is skipped");
+        assert_eq!(processed.text, "Please keep all these words.");
+        assert_eq!(processed.transformations, ["lowercase"]);
+        assert!(processed.observation.is_none());
+        assert!(
+            profiles
+                .short_local_dictation("Keep these words.", "en", &context("cloud-app", None))
+                .is_none()
+        );
     }
 
     #[test]

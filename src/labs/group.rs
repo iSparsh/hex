@@ -82,6 +82,7 @@ impl Feature {
             | Self::Playground
             | Self::StopPhrase => Group::Dictation,
             Self::SmartSpacing
+            | Self::DelayLocalRewrite
             | Self::SpokenFormatting
             | Self::SpokenSymbols
             | Self::FillerWords

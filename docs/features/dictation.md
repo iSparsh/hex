@@ -600,6 +600,35 @@ default answered; `automatic` when no model was named and none answered. Checks:
 [dictation/processor.rs](../../src/dictation/processor.rs) and
 [desktop/opencode_catalog.rs](../../src/desktop/opencode_catalog.rs).
 
+### Local Rewrite for Longer Dictations (Labs, Linux)
+
+```ts
+Processed shortcut or `hex dictation` capture        // dictation.local-rewrite-delay
+├── Mode explicitly uses a local/ OpenCode model and the lab is on (default)
+│   ├── Recording ends before cutoff -> corrections and transformations still run
+│   └── Still recording at cutoff -> one bounded background load request to the loopback llama.cpp router
+│       └── Recording ends -> transcribe the entire clip and send the corrected final text
+└── Lab off, automatic model choice, or another provider -> existing rewrite timing
+```
+
+Set the cutoff in Labs › Output or with `hex settings set labs.local_rewrite_seconds 10`.
+Choices are 5, 10, 15, 20, and 30 seconds. The cutoff measures recording time
+through release, before the audio tail. Short captures skip the selected local
+model even when it is warm. The warmup selects the foreground mode at the cutoff.
+The final rewrite selects the mode at release as usual, so changing apps can
+make the warmup speculative. Hex resolves the router address and model ID from
+OpenCode's model catalog, then sends an empty tokenization request to the router.
+This wakes a sleeping model without running text generation. The request has a
+budget of up to 10 seconds and at most one warmup can be in flight. The completed rewrite
+request keeps its own deadline and corrected-text fallback. Raw dictation and
+the local transcription API retain their existing behavior. The provider
+controls when the cleanup model unloads.
+
+Checks cover the cutoff boundary and the short transcript's processing steps.
+Live microphone and provider timing require a native run.
+[Linux warmup](../../src/linux/dictation/rewrite_warmup.rs) and
+[rewrite processing](../../src/dictation/processor.rs).
+
 ### Terminal Paste Shortcut (Labs, Windows and Linux)
 
 A third optional dictation shortcut for typing into a terminal while the main
