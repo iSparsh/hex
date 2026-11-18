@@ -82,6 +82,9 @@ pub struct LabsSettings {
     /// The engine unloads the speech model after `unload_idle_minutes` (5, 15 default, 30, 60) unused (issue 442).
     pub unload_idle: bool,
     pub unload_idle_minutes: u32,
+    pub delay_local_rewrite: bool,
+    #[serde(deserialize_with = "deserialize_local_rewrite_seconds")]
+    pub local_rewrite_seconds: u32,
     /// With Release microphone while idle on, the microphone stays open for
     /// `keep_microphone_open_seconds` after a capture, so the next one starts
     /// at once.
@@ -276,6 +279,22 @@ pub struct LabsSettings {
 /// The idle times Labs › Unload model when idle offers, in minutes.
 pub const UNLOAD_IDLE_MINUTES: [u32; 4] = [5, 15, 30, 60];
 
+/// The recording durations Labs › Local rewrite for longer dictations offers.
+pub const LOCAL_REWRITE_SECONDS: [u32; 5] = [5, 10, 15, 20, 30];
+const DEFAULT_LOCAL_REWRITE_SECONDS: u32 = 10;
+
+fn deserialize_local_rewrite_seconds<'de, D>(deserializer: D) -> Result<u32, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    let seconds = u32::deserialize(deserializer)?;
+    Ok(if LOCAL_REWRITE_SECONDS.contains(&seconds) {
+        seconds
+    } else {
+        DEFAULT_LOCAL_REWRITE_SECONDS
+    })
+}
+
 /// The times Labs › Keep mic open after dictating offers, in seconds:
 /// 30 s, 1, 3, 5, and 30 minutes.
 pub const KEEP_MICROPHONE_OPEN_SECONDS: [u32; 5] = [30, 60, 180, 300, 1_800];
@@ -370,6 +389,8 @@ impl Default for LabsSettings {
             mouse_shortcuts: false,
             unload_idle: false,
             unload_idle_minutes: 15,
+            delay_local_rewrite: true,
+            local_rewrite_seconds: DEFAULT_LOCAL_REWRITE_SECONDS,
             keep_microphone_open: false,
             keep_microphone_open_seconds: Self::DEFAULT_KEEP_MICROPHONE_OPEN_SECONDS,
             keep_on_clipboard: false,

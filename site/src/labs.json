@@ -166,6 +166,17 @@
       "title": "Unload model when idle"
     },
     {
+      "added": "2026-11-18",
+      "group": "output",
+      "groupTitle": "Output",
+      "id": "delay-local-rewrite",
+      "oses": [
+        "linux"
+      ],
+      "summary": "Warm up the local OpenCode model while you speak and skip its rewrite on shorter dictations",
+      "title": "Local rewrite for longer dictations"
+    },
+    {
       "added": "2026-11-11",
       "group": "dictation",
       "groupTitle": "Dictation",

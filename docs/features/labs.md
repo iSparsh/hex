@@ -1,8 +1,8 @@
 # Labs
 
 Labs holds features we're unsure about, **especially features people asked
-for that we built**: they land in Labs, off by default, instead of shipping
-on. Each feature also has an **audience** (`labs::Feature::audience`, one
+for that we built**. Labs usually start off. Local rewrite for longer
+dictations starts on in Linux builds. Each feature also has an **audience** (`labs::Feature::audience`, one
 `match` beside `on_this_os`, so a new feature must choose): `Everyone` ships
 in every build; `Dev` exists only in dev builds (`dev_build::is_dev_build`:
 debug, local `HEX_LOCAL_BUILD`, test `HEX_TEST_BUILD`, and dev-channel
@@ -18,7 +18,7 @@ spoken punctuation), History, Meetings, Annotate, Shortcuts, or Models. There
 is no master switch. **Labs** is always the last item in the sidebar (Up and
 Down reach it from the last pane; pressing it while it shows keeps it open) and
 lists every Labs feature this OS has as a card (name, one-line description, toggle)
-under its group's collapsible header, each **off by default**, plus Send
+under its group's collapsible header, plus Send
 feedback and Run setup again. A card's title and line are
 `labs::Feature::title` and `summary` (`src/labs/card.rs`), translated by the
 window, and its OSes `labs::Feature::oses`.
@@ -73,6 +73,9 @@ Feature             Pane  Toggle (settings.json, hex settings)   On: what it doe
 ├── Mouse shortcuts no    labs.mouse_shortcuts         (macOS)   mouse buttons record as shortcuts (#209)
 ├── Also pause the browser no pause_browser_media      (macOS)   pause a playing tab too, with Pause media (#301); General shows its permission row
 ├── Share dictation shortcut no share_dictation_shortcut (Windows) apps such as Discord see the shortcut too (#176)
+├── Local rewrite for longer dictations no labs.delay_local_rewrite + labs.local_rewrite_seconds (Linux, on, 5/10/15/20/30 s, default 10)
+│                                        while recording, warm the selected local/ OpenCode model at the cutoff;
+│                                        shorter dictations keep corrections and transformations and skip its rewrite
 ├── Unload model when idle no labs.unload_idle + labs.unload_idle_minutes (5/15/30/60, default 15)
 │                                        the engine frees the speech model after that long unused (#442)
 ├── Keep mic open after dictating no labs.keep_microphone_open + labs.keep_microphone_open_seconds (30/60/180/300/1800, default 60)

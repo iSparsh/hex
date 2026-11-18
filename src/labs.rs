@@ -132,6 +132,7 @@ impl Feature {
             Self::PauseBrowser => settings.pause_browser_media,
             Self::ShareShortcut => settings.share_dictation_shortcut,
             Self::UnloadIdle => settings.labs.unload_idle,
+            Self::DelayLocalRewrite => settings.labs.delay_local_rewrite,
             Self::KeepMicrophoneOpen => settings.labs.keep_microphone_open,
             Self::KeepOnClipboard => settings.labs.keep_on_clipboard,
             Self::CopyOnly => settings.labs.copy_only,
@@ -216,6 +217,7 @@ impl Feature {
             &mut labs.screen_vocabulary,
             &mut labs.mouse_shortcuts,
             &mut labs.unload_idle,
+            &mut labs.delay_local_rewrite,
             &mut labs.keep_microphone_open,
             &mut labs.keep_on_clipboard,
             &mut labs.copy_only,
@@ -304,6 +306,7 @@ impl Feature {
             Self::PauseBrowser => settings.pause_browser_media = on,
             Self::ShareShortcut => settings.share_dictation_shortcut = on,
             Self::UnloadIdle => settings.labs.unload_idle = on,
+            Self::DelayLocalRewrite => settings.labs.delay_local_rewrite = on,
             Self::KeepMicrophoneOpen => settings.labs.keep_microphone_open = on,
             Self::KeepOnClipboard => settings.labs.keep_on_clipboard = on,
             Self::CopyOnly => settings.labs.copy_only = on,
@@ -1007,14 +1010,17 @@ mod tests {
     }
 
     #[test]
-    fn every_feature_is_off_by_default_and_round_trips() {
+    fn every_feature_has_its_expected_default_and_round_trips() {
         let mut settings = AppSettings::default();
         for feature in Feature::ALL {
-            assert!(
-                !feature.on(&settings),
-                "{} is on by default",
+            assert_eq!(
+                feature.on(&settings),
+                feature == Feature::DelayLocalRewrite,
+                "{} has the wrong default",
                 feature.name()
             );
+            feature.set(&mut settings, false);
+            assert!(!feature.on(&settings));
             assert_eq!(Feature::from_name(feature.name()), Some(feature));
             feature.set(&mut settings, true);
             assert!(feature.on(&settings));

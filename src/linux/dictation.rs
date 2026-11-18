@@ -31,6 +31,7 @@ const UPDATE_INTERVAL: Duration = Duration::from_millis(20);
 
 mod gap;
 mod output;
+mod rewrite_warmup;
 mod shortcuts;
 mod silence;
 mod typing;
@@ -63,6 +64,7 @@ struct Job {
     /// release; `None` for a `hex dictation` capture (Labs › YOLO
     /// mode).
     held_ms: Option<u64>,
+    short_local_dictation: bool,
 }
 
 enum OutputJob {
@@ -233,6 +235,7 @@ pub(crate) fn run(
     let (jobs, job_receiver) = mpsc::sync_channel::<OutputJob>(2);
     let (result_sender, results) = mpsc::channel();
     let worker_stop = output.stop.clone();
+    let mut rewrite_warmup = rewrite_warmup::Warmup::new(output_settings.modes.clone());
     output.worker = Some(thread::spawn(move || {
         let mut paster = LinuxPaster::new(worker_stop.clone(), worker_paste_with_shift, paste_keys);
         let mut last_dictation: Option<String> = None;
@@ -312,6 +315,7 @@ pub(crate) fn run(
                         job.learning.take(),
                         job.context.finish(),
                         None,
+                        job.short_local_dictation,
                     );
                 }
                 let paster = paster.as_mut().map_err(|error| eyre!("{error:#}"))?;
@@ -336,6 +340,7 @@ pub(crate) fn run(
                     job.learning.take(),
                     job.context.finish(),
                     job.held_ms,
+                    job.short_local_dictation,
                 )
             })()
             .map_err(|error| format!("{error:#}"));
@@ -628,6 +633,7 @@ pub(crate) fn run(
                 by_shortcut,
                 &mut active_typing,
                 context,
+                rewrite_warmup::delay(&settings.labs),
             )?;
             if silent
                 && reopen_silent_stream(
@@ -761,6 +767,7 @@ pub(crate) fn run(
                     }
                     recording_flavour = flavour;
                     recording_by_shortcut = !command;
+                    rewrite_warmup.begin_capture();
                     // A short tap or chord must never create an input method;
                     // Live typing starts at the hold threshold (or the Toggle
                     // press), before the stream opens so it can demand text.
@@ -1089,6 +1096,9 @@ pub(crate) fn run(
                         &mut active_typing,
                     );
                 }
+                if finishing.is_none() && !service.is_active() && !recording_flavour.raw() {
+                    rewrite_warmup.maybe_start(&capture, captured_through, &settings.labs);
+                }
                 stream_when_due(&mut capture, &engine, toggle);
                 if let Some(partial) = capture.report_live_text() {
                     if let Some(typing) = &active_typing {
@@ -1279,11 +1289,14 @@ fn submit_capture(
     by_shortcut: bool,
     typing: &mut Option<CaptureTyping>,
     context: crate::linux::context::PendingContext,
+    local_rewrite_after: Option<Duration>,
 ) -> Result<bool> {
     // A discarded capture drops this guard without starting or ending a
     // session; a transcribed one moves it into the job.
     let typing = typing.take();
     let learning = crate::linux::atspi::corrections::take();
+    let short_local_dictation =
+        rewrite_warmup::is_short(capture.started_at(), ended_at, local_rewrite_after);
     let no_speech = |print: Option<PrintReply>| {
         if let Some(print) = print {
             print.send(PrintedTranscript::NoSpeech);
@@ -1326,6 +1339,7 @@ fn submit_capture(
                 flavour,
                 typing: typing.map(|CaptureTyping { session, .. }| session),
                 held_ms,
+                short_local_dictation,
             }));
             match jobs.try_send(job) {
                 Ok(()) => {
@@ -1561,6 +1575,7 @@ mod tests {
             false,
             &mut None,
             Default::default(),
+            None,
         )
         .unwrap();
         assert!(silent);
@@ -1712,6 +1727,7 @@ mod tests {
             false,
             &mut None,
             Default::default(),
+            None,
         )
         .unwrap();
         assert_eq!(pending, 1);
@@ -1783,6 +1799,7 @@ mod tests {
             false,
             &mut None,
             Default::default(),
+            None,
         )
         .unwrap();
 
@@ -1820,6 +1837,7 @@ mod tests {
             false,
             &mut None,
             Default::default(),
+            None,
         )
         .unwrap();
         assert!(queued.try_recv().is_ok());
@@ -1927,6 +1945,7 @@ mod tests {
             None,
             Default::default(),
             None,
+            false,
         );
 
         assert!(result.is_err(), "the failed paste is still reported");

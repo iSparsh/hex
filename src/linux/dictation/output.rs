@@ -64,6 +64,7 @@ impl DictationOutput {
         learning: Option<crate::linux::atspi::corrections::Session>,
         context: crate::dictation::context::ContextSnapshot,
         held_ms: Option<u64>,
+        short_local_dictation: bool,
     ) -> Result<String> {
         let application = context.application.clone();
         let modes = self
@@ -73,6 +74,18 @@ impl DictationOutput {
             .clone();
         let processed = if flavour.raw() {
             crate::dictation::processor::Processed::unchanged(raw_text.trim())
+        } else if let Some(processed) = short_local_dictation
+            .then(|| {
+                modes.process_short_local_dictation(
+                    &raw_text,
+                    language,
+                    &context,
+                    &self.transformations,
+                )
+            })
+            .flatten()
+        {
+            processed
         } else {
             modes.process(
                 &raw_text,

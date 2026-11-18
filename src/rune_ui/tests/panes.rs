@@ -2103,6 +2103,20 @@ fn hud_lab_picks_dot_scope_processing_placement_and_level() {
 }
 
 #[test]
+fn local_rewrite_delay_defaults_on_and_saves_its_cutoff() {
+    let mut rt = runtime("linux-labs", true, (980.0, 2000.0));
+    assert!(rt.state.settings.labs.delay_local_rewrite);
+    assert_eq!(rt.state.settings.labs.local_rewrite_seconds, 10);
+    tap(&mut rt, "local-rewrite-seconds-trigger");
+    tap_option(&mut rt, 2);
+    assert_eq!(rt.state.settings.labs.local_rewrite_seconds, 15);
+    tap(&mut rt, "lab-delay-local-rewrite");
+    assert!(!rt.state.settings.labs.delay_local_rewrite);
+    assert!(rt.find("local-rewrite-seconds-trigger").is_none());
+    assert_eq!(rt.state.settings.labs.local_rewrite_seconds, 15);
+}
+
+#[test]
 fn labs_lists_every_toggle_off_by_default() {
     let mut rt = runtime("mac-production", true, (980.0, 2000.0));
     rt.state.settings.experimental.hex_microphone = false;

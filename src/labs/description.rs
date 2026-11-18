@@ -35,6 +35,9 @@ impl Feature {
             Self::MouseShortcuts => "Record mouse buttons as shortcuts",
             Self::PauseBrowser => "Also pause the browser while dictating, with Pause media",
             Self::ShareShortcut => "Let apps such as Discord see the dictation shortcut too",
+            Self::DelayLocalRewrite => {
+                "Linux: start warming a mode's selected local/ OpenCode model after labs.local_rewrite_seconds seconds; skip that rewrite on shorter dictations"
+            }
             Self::UnloadIdle => {
                 "Free the speech model's memory after a while unused (labs.unload_idle_minutes); the next dictation reloads it"
             }

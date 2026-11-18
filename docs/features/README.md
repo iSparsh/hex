@@ -30,7 +30,7 @@ have detailed maps.
 automation (strobe's benches) read from the window, the HUD, and the capsules.
 Agents can [read retained transcripts](transcript-cli.md) and
 [control the running app](control-cli.md) with the release CLI.
-[Labs](labs.md) gives every unfinished feature its own switch, off by
+[Labs](labs.md) gives every unfinished feature its own switch, usually off by
 default, listed under collapsible groups (Dictation, Output, History,
 Meetings, Annotate, Shortcuts, Models) with only this OS's labs.
 Its Sort and filter models toggle (off by default) adds a sort and a saved-language filter to the
@@ -66,6 +66,9 @@ Labs › Learn from corrections (Linux, off by default) observes small edits to
 the final inserted dictation in explicitly allowed accessible apps. It stores
 app-scoped hints for existing AI cleanup, never unconditional aliases;
 `hex corrections list|forget` reviews or suppresses them.
+On Linux, Labs › Local rewrite for longer dictations is on by default. It
+warms a mode's selected `local/` OpenCode model after 10 seconds of recording
+and skips that rewrite on shorter dictations. See [Dictation](dictation.md#local-rewrite-for-longer-dictations-labs-linux).
 [Your own speech models](own-models.md) covers adding a GGUF file and using
 models another app already downloaded; its Labs › Smaller model files toggle
 (off by default, macOS) also accepts imports quantized to Q6_K, Q5_K, or Q4_K.

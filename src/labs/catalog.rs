@@ -28,6 +28,7 @@ impl Feature {
             | Self::PauseBrowser
             | Self::ShareShortcut
             | Self::UnloadIdle
+            | Self::DelayLocalRewrite
             | Self::KeepMicrophoneOpen
             | Self::KeepOnClipboard
             | Self::CopyOnly
@@ -96,6 +97,7 @@ impl Feature {
     pub const fn added(self) -> u32 {
         match self {
             Self::CorrectionLearning | Self::CorrectionNotices => 20261116,
+            Self::DelayLocalRewrite => 20261118,
             Self::Meetings
             | Self::VoiceFilter
             | Self::Playground
@@ -185,6 +187,9 @@ impl Feature {
         if key == "labs.correction_learning_apps" {
             return Some(Self::CorrectionLearning);
         }
+        if key == "labs.local_rewrite_seconds" {
+            return Some(Self::DelayLocalRewrite);
+        }
         if key == "labs.unload_idle_minutes" {
             return Some(Self::UnloadIdle);
         }
@@ -252,6 +257,7 @@ impl Feature {
             Self::GnomeClipboardRestore
             | Self::CorrectionNotices
             | Self::CorrectionLearning
+            | Self::DelayLocalRewrite
             | Self::TypedText
             | Self::GnomeMeetingCapsules
             | Self::GnomeAnnotate
@@ -339,6 +345,7 @@ impl Feature {
             Self::PauseBrowser => "pause-browser",
             Self::ShareShortcut => "share-shortcut",
             Self::UnloadIdle => "unload-idle",
+            Self::DelayLocalRewrite => "delay-local-rewrite",
             Self::KeepMicrophoneOpen => "keep-microphone-open",
             Self::KeepOnClipboard => "keep-on-clipboard",
             Self::CopyOnly => "copy-only",
@@ -422,6 +429,7 @@ impl Feature {
             Self::PauseBrowser => "pause_browser_media",
             Self::ShareShortcut => "share_dictation_shortcut",
             Self::UnloadIdle => "labs.unload_idle",
+            Self::DelayLocalRewrite => "labs.delay_local_rewrite",
             Self::KeepMicrophoneOpen => "labs.keep_microphone_open",
             Self::KeepOnClipboard => "labs.keep_on_clipboard",
             Self::CopyOnly => "labs.copy_only",

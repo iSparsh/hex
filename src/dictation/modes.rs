@@ -34,6 +34,40 @@ impl ModeRuntime {
         self.reads_page
     }
 
+    #[cfg(target_os = "linux")]
+    pub(crate) fn has_local_rewrite(&self) -> bool {
+        self.profiles.has_local_rewrite()
+    }
+
+    #[cfg(target_os = "linux")]
+    pub(crate) fn warm_local_rewrite(
+        &self,
+        context: &crate::dictation::context::ContextSnapshot,
+        cancelled: &AtomicBool,
+    ) {
+        self.profiles.warm_local_rewrite(context, cancelled);
+    }
+
+    #[cfg(target_os = "linux")]
+    pub(crate) fn process_short_local_dictation(
+        &self,
+        text: &str,
+        language: &str,
+        context: &crate::dictation::context::ContextSnapshot,
+        transformations: &crate::personal_commands::TransformationClient,
+    ) -> Option<Processed> {
+        let mut processed = self
+            .profiles
+            .short_local_dictation(text, language, context)?;
+        processed.apply_transformations(
+            transformations,
+            context,
+            &AtomicBool::new(false),
+            crate::dictation::processor::Source::Dictation,
+        );
+        Some(processed)
+    }
+
     /// Speech preparation, Global corrections, mode corrections, rewrite,
     /// and transformations, through the same profiles macOS uses.
     pub fn process(

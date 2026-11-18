@@ -333,6 +333,16 @@ pub(super) const KEYS: &[Key] = &[
         "Labs: record mouse buttons as shortcuts (macOS)",
     ),
     key(
+        "labs.delay_local_rewrite",
+        Kind::Bool,
+        "Labs: only rewrite longer dictations with a selected local OpenCode model (Linux)",
+    ),
+    key(
+        "labs.local_rewrite_seconds",
+        Kind::NumberChoice(&["5", "10", "15", "20", "30"]),
+        "Seconds of dictation before a local OpenCode model starts warming up (Linux)",
+    ),
+    key(
         "labs.unload_idle",
         Kind::Bool,
         "Labs: unload the speech model when idle, freeing its memory",
